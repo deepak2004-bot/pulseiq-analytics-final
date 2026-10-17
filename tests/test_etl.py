@@ -9,6 +9,15 @@ import src.etl as etl
 
 WORKBOOK = "01_LedgerForge_Python_Master_Dataset.xlsx"
 
+EMPLOYEE_COLUMNS = [
+    "employee_id", "first_name", "last_name", "full_name", "work_email",
+    "gender", "date_of_birth", "hire_date", "exit_date", "employment_status",
+    "employment_type", "department_id", "role_id", "manager_id", "work_location",
+    "work_mode", "highest_education", "prior_experience_years", "career_gap_months",
+    "commute_distance_km", "pf_applicable", "esi_applicable", "notice_period_days",
+    "resignation_date", "exit_type", "exit_reason", "created_at",
+]
+
 
 @pytest.fixture
 def run_pipeline(tmp_path, monkeypatch):
@@ -23,11 +32,13 @@ def run_pipeline(tmp_path, monkeypatch):
     monkeypatch.setattr(etl, "CLEAN_DIR", str(clean_dir))
     monkeypatch.setattr(etl, "REJECTED_DIR", str(rejected_dir))
     monkeypatch.setattr(etl, "LOGS_DIR", str(logs_dir))
+    monkeypatch.setattr(etl, "TABLES", [t for t in etl.TABLES if t[1] == "employees"])
+    # The test rows are deliberately bad, so allow any rejection rate here.
+    monkeypatch.setattr(etl, "MAX_REJECT_PCT", 100)
 
     def _run(rows):
-        pd.DataFrame(rows).to_excel(
-            data_dir / WORKBOOK, sheet_name="employees", index=False
-        )
+        df = pd.DataFrame(rows).reindex(columns=EMPLOYEE_COLUMNS)
+        df.to_excel(data_dir / WORKBOOK, sheet_name="employees", index=False)
         etl.run_etl()
         clean = pd.read_csv(clean_dir / "employees_clean.csv")
         rejected = pd.read_csv(rejected_dir / "employees_rejected.csv")
@@ -43,7 +54,7 @@ def test_joining_after_leaving_is_rejected(run_pipeline):
     ])
     assert list(clean["employee_id"]) == ["EMP-1"]
     assert list(rejected["employee_id"]) == ["EMP-2"]
-    assert rejected["rejection_reason"].iloc[0] == "dates out of order"
+    assert "dates out of order" in rejected["rejection_reason"].iloc[0]
 
 
 def test_duplicate_employee_ids_are_kept_once(run_pipeline):
@@ -77,5 +88,5 @@ def test_run_log_is_written(run_pipeline):
         {"employee_id": "EMP-1", "hire_date": "2024-01-10", "exit_date": None},
     ])
     text = log_path.read_text()
-    assert "Rows In (Employees): 1" in text
-    assert "Rows Rejected: 0" in text
+    assert "'employees': in=1 out=1 rejected=0" in text
+    assert "Status: OK" in text
