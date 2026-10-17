@@ -1,0 +1,1 @@
+attendance_id,employee_id,attendance_date,weekday,status,leave_type_code,check_in,check_out,hours_worked,overtime_hours,late_flag,source,data_quality_flag,department_id,rejection_reason

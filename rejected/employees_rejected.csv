@@ -1,0 +1,1 @@
+employee_id,first_name,last_name,full_name,work_email,gender,date_of_birth,hire_date,exit_date,employment_status,employment_type,department_id,role_id,manager_id,work_location,work_mode,highest_education,prior_experience_years,career_gap_months,commute_distance_km,pf_applicable,esi_applicable,notice_period_days,resignation_date,exit_type,exit_reason,created_at,rejection_reason
