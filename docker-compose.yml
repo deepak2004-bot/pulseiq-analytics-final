@@ -1,0 +1,12 @@
+services:
+  etl:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./clean:/app/clean
+      - ./rejected:/app/rejected
+      - ./logs:/app/logs
+      - ./src:/app/src
+      - ./docs:/app/docs
+    env_file:
+      - .env.example

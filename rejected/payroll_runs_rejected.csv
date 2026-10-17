@@ -1,0 +1,1 @@
+run_id,period_start,period_end,pay_date,employees_paid,total_gross,total_deductions,total_net,total_employer_contributions,total_employer_cost,status,run_by,approved_by,created_at,approved_at,idempotency_key,journal_entry_id,calculation_version,rejection_reason
